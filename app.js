@@ -28,7 +28,7 @@ app.use(require('./api'));
 if (NODE_ENV === 'production') {
     mongoose.connect(process.env.MONGODB_URI_PRODUCTION)
         .then(() => console.log('successfully connected to mongodb production uri.'),
-                e => console.log('error occured during connecting to mongodb production', e));
+            e => console.log('error occured during connecting to mongodb production', e));
 
     app.use(express.static(path.join(__dirname, '../client/build')));
 
@@ -38,8 +38,8 @@ if (NODE_ENV === 'production') {
     });
 } else {
     mongoose.connect(process.env.MONGODB_URI_LOCAL)
-        .then(() => console.log('successfully connected to mongodb local uri.'),
-            e => console.log('error occured during connecting to mongodb local', e));
+        .then(() => console.log('successfully connected to mongodb production uri.'),
+            e => console.log('error occured during connecting to mongodb production', e));
 
     app.use(require('morgan')('dev'));
     app.get('*', (req, res) => {
