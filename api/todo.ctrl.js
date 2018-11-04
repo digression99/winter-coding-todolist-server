@@ -1,32 +1,76 @@
 const mongoose = require('mongoose');
+const Todo = mongoose.model('todo');
 
-export const addTodo = async (req, res) => {
-    const todo = req.body;
-    console.log('add todo');
+const addTodo = async (req, res) => {
+    const {
+        title,
+        content
+    } = req.body;
 
-    res.send('add todo');
+    try {
+        const todo = new Todo({
+            title,
+            content
+        });
+
+        await todo.save();
+
+        res.status(200).json(todo);
+    } catch (e) {
+        console.log(e);
+        res.status(422).send(e);
+    }
 };
 
-export const updateTodo = async (req, res) => {
-    const todo = req.body;
-
+const updateTodo = async (req, res) => {
+    const { todo, id } = req.body;
     console.log('update todo');
     console.log('todo : ', JSON.stringify(todo));
-    res.send('update todo');
+
+    try {
+        Todo.updateOne({ _id : id }, {
+            $set : {...todo}
+        });
+
+        res.status(200).json({ ...todo });
+    } catch (e) {
+        console.log(e);
+        res.status(400).send(e);
+    }
 };
 
-export const deleteTodo = async (req, res) => {
+const deleteTodo = async (req, res) => {
     const { id } = req.body;
-
     console.log('id : ', id);
-    console.log('delete todo');
 
-    res.send('delete todo.');
+    try {
+        await Todo.findByIdAndRemove(id);
+        res.status(200).json(id);
+    } catch (e) {
+        console.log(e);
+        res.status(400).json(e);
+    }
 };
 
-export const getTodos = async (req, res) => {
-
+const getTodos = async (req, res) => {
     console.log('get todos.');
     res.send('get todos.');
+
+    try {
+        const todos = await Todo.find({});
+        res.status(200).json({
+            todos
+        });
+
+    } catch (e) {
+        console.log(e);
+        res.status(400).json(e);
+    }
 };
 
+module.exports = {
+    addTodo,
+    updateTodo,
+    deleteTodo,
+    getTodos
+};

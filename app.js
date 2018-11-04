@@ -8,20 +8,22 @@ const mongoose = require('mongoose');
 
 const {
     PORT,
-    NODE_ENV,
-    MONGODB_URI
+    NODE_ENV
 } = process.env;
-
-
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(require('./api'));
+
 if (NODE_ENV === 'production') {
+    mongoose.connect(process.env.MONGODB_URI_PRODUCTION)
+        .then(() => console.log('successfully connected to mongodb production uri.'),
+                e => console.log('error occured during connecting to mongodb production', e));
+
     app.use(express.static(path.join(__dirname, '../client/build')));
 
     app.get('*', (req, res) => {
@@ -29,7 +31,14 @@ if (NODE_ENV === 'production') {
         res.sendFile(path.join(__dirname, '../client/build/index.html'));
     });
 } else {
+    mongoose.connect(process.env.MONGODB_URI_LOCAL)
+        .then(() => console.log('successfully connected to mongodb local uri.'),
+            e => console.log('error occured during connecting to mongodb local', e));
+
     app.use(require('morgan')('dev'));
+    app.get('*', (req, res) => {
+        res.send('invalid request.');
+    })
 }
 
 // catch 404 and forward to error handler
@@ -37,14 +46,6 @@ app.use(function (req, res, next) {
     next(createError(404));
 });
 
-// // error handler
-// app.use(function (err, req, res, next) {
-//     // set locals, only providing error in development
-//     res.locals.message = err.message;
-//     res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//     // render the error page
-//     res.status(err.status || 500);
-// });
+
 
 module.exports = app;
