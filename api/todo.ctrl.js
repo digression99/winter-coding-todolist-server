@@ -2,19 +2,10 @@ const mongoose = require('mongoose');
 const Todo = mongoose.model('todo');
 
 const addTodo = async (req, res) => {
-    const {
-        title,
-        content
-    } = req.body;
-
+    const { todo } = req.body;
     try {
-        const todo = new Todo({
-            title,
-            content
-        });
-
-        await todo.save();
-
+        const newTodo = new Todo(todo);
+        await newTodo.save();
         res.status(200).json(todo);
     } catch (e) {
         console.log(e);
@@ -23,15 +14,9 @@ const addTodo = async (req, res) => {
 };
 
 const updateTodo = async (req, res) => {
-    const { todo, id } = req.body;
-    console.log('update todo');
-    console.log('todo : ', JSON.stringify(todo));
-
+    const { todo } = req.body;
     try {
-        Todo.updateOne({ _id : id }, {
-            $set : {...todo}
-        });
-
+        await Todo.updateOne({ _id : todo._id }, todo);
         res.status(200).json({ ...todo });
     } catch (e) {
         console.log(e);
@@ -41,8 +26,6 @@ const updateTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
     const { id } = req.body;
-    console.log('id : ', id);
-
     try {
         await Todo.findByIdAndRemove(id);
         res.status(200).json(id);
@@ -53,15 +36,11 @@ const deleteTodo = async (req, res) => {
 };
 
 const getTodos = async (req, res) => {
-    console.log('get todos.');
-    res.send('get todos.');
-
     try {
         const todos = await Todo.find({});
         res.status(200).json({
             todos
         });
-
     } catch (e) {
         console.log(e);
         res.status(400).json(e);

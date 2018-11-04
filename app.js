@@ -5,6 +5,8 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const proxy = require('http-proxy-middleware');
+const cors = require('cors');
 
 const {
     PORT,
@@ -13,9 +15,13 @@ const {
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(proxy('/api/*', {target : 'http://localhost:5000'}));
+
+require('./models/todo');
 
 app.use(require('./api'));
 
